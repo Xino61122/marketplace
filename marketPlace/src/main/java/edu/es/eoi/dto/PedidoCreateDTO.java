@@ -2,7 +2,6 @@ package edu.es.eoi.dto;
 
 import java.util.List;
 
-import edu.es.eoi.entity.RelacionArticuloPedido;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +10,7 @@ import lombok.Setter;
 public class PedidoCreateDTO {
 	
 	private String nombre;
+	private String fecha;
 	private int idUsuario;
-	private List<RelacionArticuloPedido> relArticulos;
+	private List<RelacionArticuloPedidoDTO> articulos;
 }

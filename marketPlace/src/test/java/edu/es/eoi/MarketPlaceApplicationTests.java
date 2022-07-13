@@ -10,13 +10,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import edu.es.eoi.dto.ArticuloDTO;
+import edu.es.eoi.dto.PedidoCreateDTO;
+import edu.es.eoi.dto.RelacionArticuloPedidoDTO;
 import edu.es.eoi.dto.UsuarioDTO;
 import edu.es.eoi.entity.Articulo;
 import edu.es.eoi.entity.Pedido;
+import edu.es.eoi.entity.RelacionArticuloPedido;
 import edu.es.eoi.entity.Usuario;
 import edu.es.eoi.repository.ArticuloRepository;
 import edu.es.eoi.repository.PedidoRepository;
+import edu.es.eoi.repository.RelacionArticuloPedidoRepository;
 import edu.es.eoi.repository.UsuarioReposity;
 import edu.es.eoi.service.ArticuloService;
 
@@ -31,6 +34,9 @@ class MarketPlaceApplicationTests {
 
 	@Autowired
 	UsuarioReposity repoUsuario;
+
+	@Autowired
+	RelacionArticuloPedidoRepository repoRelacion;
 
 //	******************************** REPOSITORY TEST ********************************
 
@@ -50,41 +56,85 @@ class MarketPlaceApplicationTests {
 
 	@Test
 	void UsuarioRepositoryTestFindCreateAndDelete() {
-		Usuario usuario = new Usuario();
-		usuario.setNombre("pepe");
-		usuario.setPassword("Algo");
-		repoUsuario.save(usuario);
+//		Usuario usuario = new Usuario();
+//		usuario.setNombre("pepe");
+//		usuario.setPassword("Algo");
+//		repoUsuario.save(usuario);
+//
+//		for (int i = 0; i < repoUsuario.findAll().size(); i++) {
+//			System.out.println(repoUsuario.findAll().get(i).getNombre());
+//		}
+//
+//		Assertions.assertEquals("pepe", repoUsuario.findById(usuario.getId()).get().getNombre());
+//		Assertions.assertEquals("Algo", repoUsuario.findById(usuario.getId()).get().getPassword());
+//		repoUsuario.delete(usuario);
 
-		for (int i = 0; i < repoUsuario.findAll().size(); i++) {
-			System.out.println(repoUsuario.findAll().get(i).getNombre());
-		}
-
-		Assertions.assertEquals("pepe", repoUsuario.findById(usuario.getId()).get().getNombre());
-		Assertions.assertEquals("Algo", repoUsuario.findById(usuario.getId()).get().getPassword());
-		repoUsuario.delete(usuario);
+		Assertions.assertEquals("Test2", repoUsuario.findByNombreEquals("Test2").getNombre());
 	}
 
 	@Test
 	void PedidoRepositoryTestFindCreateAndDelete() {
-		Usuario usuario = new Usuario();
-		usuario.setNombre("pepe");
-		usuario.setPassword("Algo");
-		repoUsuario.save(usuario);
-		Pedido pedido = new Pedido();
+//		Usuario usuario = new Usuario();
+//		usuario.setNombre("pepe");
+//		usuario.setPassword("Algo");
+//		repoUsuario.save(usuario);
+//		Pedido pedido = new Pedido();
+//		Calendar fecha = Calendar.getInstance();
+//		fecha.set(2016, 6, 3);
+//		pedido.setFecha(fecha);
+//		pedido.setNombre("testeoBorrar");
+//		pedido.setUsuario(usuario);
+//		repoPedido.save(pedido);
+//
+//		System.out.println(repoPedido.findPedidoByNombreContainingOrderById("test"));
+//
+//		Assertions.assertEquals("testeoBorrar", repoPedido.findById(pedido.getId()).get().getNombre());
+//
+//		repoUsuario.delete(usuario);
+//		repoPedido.delete(pedido);
+
+		// Esto lo manda el front
+		List<RelacionArticuloPedidoDTO> listArt = new ArrayList<>();
+//		RelacionArticuloPedidoDTO artDto = new RelacionArticuloPedidoDTO();
+//		artDto.setCantidad(2);
+//		artDto.setId(4);
+//		listArt.add(artDto);
+
+		PedidoCreateDTO crearPedido = new PedidoCreateDTO();
+		crearPedido.setNombre("PEPE");
+		crearPedido.setFecha("1999-05-01");
+		crearPedido.setIdUsuario(2);
+		crearPedido.setArticulos(listArt);
+
+		// En el back creamos el objeto a guardar en BBDD
+
+		// crear fecha
 		Calendar fecha = Calendar.getInstance();
-		fecha.set(2016, 6, 3);
+		String fechaList[] = (crearPedido.getFecha()).split("-");
+		fecha.set(Integer.parseInt(fechaList[0]), Integer.parseInt(fechaList[1]), Integer.parseInt(fechaList[2]));
+
+		// crear Pedido
+		Pedido pedido = new Pedido();
+		pedido.setNombre(crearPedido.getNombre());
+		pedido.setUsuario(repoUsuario.findById(crearPedido.getIdUsuario()).get());
 		pedido.setFecha(fecha);
-		pedido.setNombre("testeoBorrar");
-		pedido.setUsuario(usuario);
-		repoPedido.save(pedido);
+			
+		Pedido nuevo = repoPedido.save(pedido);
+		
+		// crear RelacionArticulo
+		for (RelacionArticuloPedidoDTO rel : listArt) {
+			RelacionArticuloPedido relacion = new RelacionArticuloPedido();
+			relacion.setCantidad(rel.getCantidad());
+			relacion.setArticuloId(repoArticulo.findArticuloById(rel.getId()));
+			relacion.setPedidoId(nuevo);
+			repoRelacion.save(relacion);
+		}
 
-		System.out.println(repoPedido.findPedidoByNombreContainingOrderById("test"));
+		System.out.println(repoPedido.findById(11).get().getNombre());
 
-		Assertions.assertEquals("testeoBorrar", repoPedido.findById(pedido.getId()).get().getNombre());
+		
 
-		repoUsuario.delete(usuario);
-		repoPedido.delete(pedido);
-
+		Assertions.assertEquals("PEPE", repoPedido.findById(pedido.getId()).get().getNombre());
 	}
 
 //	******************************** SERVICE TEST ********************************
@@ -168,29 +218,28 @@ class MarketPlaceApplicationTests {
 	}
 
 //  -----ARTICULO-----
-	
+
 	@Autowired
 	private ArticuloService service;
-	
+
 	@Test
-	void allArticulosTest() {		
+	void allArticulosTest() {
 
-		System.out.println(service.allArticulos("ñ"));
+		System.out.println(service.allArticulosBusqueda("ñ"));
 
 	}
 
-	@Test 
-	void findArticuloIdTest() {
-		Articulo articulo = repoArticulo.findArticuloById(2);
-		ArticuloDTO articuloDTO = new ArticuloDTO();
-		
-		articuloDTO.setId(articulo.getId());
-		articuloDTO.setNombre(articulo.getNombre());
-		articuloDTO.setPrecio(articulo.getPrecio());
-		articuloDTO.setStock(articulo.getStock());
-		Assertions.assertEquals(null, articulo);
-	}
-	
+//	@Test 
+//	void findArticuloIdTest() {
+//		Articulo articulo = repoArticulo.findArticuloById(2);
+//		ArticuloDTO articuloDTO = new ArticuloDTO();
+//		
+//		articuloDTO.setId(articulo.getId());
+//		articuloDTO.setNombre(articulo.getNombre());
+//		articuloDTO.setPrecio(articulo.getPrecio());
+//		articuloDTO.setStock(articulo.getStock());
+//	}
+
 //  -----PEDIDO-----
 //	@Autowired
 //	private PedidoService servicePedido;
@@ -203,31 +252,3 @@ class MarketPlaceApplicationTests {
 //	}
 //	
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

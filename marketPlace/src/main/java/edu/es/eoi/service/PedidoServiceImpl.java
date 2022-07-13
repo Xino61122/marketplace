@@ -14,6 +14,7 @@ import edu.es.eoi.dto.RelacionArticuloPedidoDTO;
 import edu.es.eoi.entity.Pedido;
 import edu.es.eoi.entity.RelacionArticuloPedido;
 import edu.es.eoi.repository.PedidoRepository;
+import edu.es.eoi.repository.RelacionArticuloPedidoRepository;
 import edu.es.eoi.repository.UsuarioReposity;
 
 @Service
@@ -24,10 +25,26 @@ public class PedidoServiceImpl implements PedidoService {
 	
 	@Autowired
 	UsuarioReposity repoUsuario;
+	
+	@Autowired
+	ArticuloService repoArticulo;
+	
+	@Autowired
+	RelacionArticuloPedidoRepository repoRelacion;
 
+	@Override
+	public List<PedidoDTO> allPedido() {
+		
+		List<PedidoDTO> pedidosDTO = new ArrayList<>();
+		for(Pedido pedido:repoPedido.findAll()) {
+			pedidosDTO.add(convertPedidoPedidoDTO(pedido));
+		}
+		
+		return pedidosDTO;
+	}
 	
 	@Override
-	public List<PedidoDTO> allPedido(String nombre) {
+	public List<PedidoDTO> allPedidoBusqueda(String nombre) {
 		
 		List<PedidoDTO> pedidosDTO = new ArrayList<>();
 		for(Pedido pedido:repoPedido.findPedidoByNombreContainingOrderById(nombre)) {
@@ -96,11 +113,34 @@ public class PedidoServiceImpl implements PedidoService {
 	}
 	
 	@Override
-	public Pedido createPedido(PedidoCreateDTO pedidoDTO) {
-		Pedido pedido = new Pedido();
-		pedido.setNombre(pedidoDTO.getNombre());
-		pedido.setUsuario(repoUsuario.findById(pedidoDTO.getIdUsuario()).get());
-		pedido.setRelArticulos(pedidoDTO.getRelArticulos());
+	public Pedido createPedido(PedidoCreateDTO pedidoDto) {
+		
+		Calendar fecha = Calendar.getInstance();
+		String fechaList[] =  (pedidoDto.getFecha()).split("-");
+		try {
+			fecha.set(Integer.parseInt(fechaList[0]), Integer.parseInt(fechaList[1]), Integer.parseInt(fechaList[2]));
+		}catch (Exception e) {
+			return null;
+		}
+		Pedido pedido=new Pedido();
+		pedido.setNombre(pedidoDto.getNombre());
+		pedido.setUsuario(repoUsuario.findById(pedidoDto.getIdUsuario()).get());
+		pedido.setFecha(fecha);
+		
+		Pedido nuevoPedidoSave = repoPedido.save(pedido);
+		
+		List<RelacionArticuloPedidoDTO> listArt= pedidoDto.getArticulos();
+		
+		if(listArt!=null) {
+			for (RelacionArticuloPedidoDTO rel : listArt) {
+				RelacionArticuloPedido relacion = new RelacionArticuloPedido();
+				relacion.setCantidad(rel.getCantidad());
+				relacion.setArticuloId(repoArticulo.findArticuloId(rel.getId()));
+				relacion.setPedidoId(nuevoPedidoSave);
+				repoRelacion.save(relacion);			}
+		}
+		
+		
 		return pedido;
 	}
 
@@ -120,9 +160,6 @@ public class PedidoServiceImpl implements PedidoService {
 		return relacionDTO;
 
 	}
-
-
-
 
 
 }

@@ -10,7 +10,9 @@ import edu.es.eoi.entity.RelacionArticuloPedido;
 
 public interface PedidoService {
 
-	List<PedidoDTO> allPedido(String nombre);
+	List<PedidoDTO> allPedidoBusqueda(String nombre);
+	
+	List<PedidoDTO> allPedido();
 
 	PedidoDTO findPedidoId(int id);
 
@@ -20,7 +22,7 @@ public interface PedidoService {
 	
 	void savePedido(Pedido pedido);
 	
-	Pedido createPedido(PedidoCreateDTO pedidoDTO);
+	Pedido createPedido(PedidoCreateDTO pedidoDto);
 
 	PedidoDTO convertPedidoPedidoDTO(Pedido pedido);
 

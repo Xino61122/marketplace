@@ -3,6 +3,7 @@ package edu.es.eoi.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,19 +16,30 @@ import edu.es.eoi.entity.Pedido;
 import edu.es.eoi.service.PedidoService;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200/")
 @RequestMapping(value = "/marketplace/pedidos")
 public class PedidoController {
 
 	@Autowired
 	private PedidoService service;
 
-	@RequestMapping(value = "busqueda/{nombreparcial}", method = RequestMethod.GET)
-	public ResponseEntity<?> allProductos(@PathVariable String nombreparcial) {
+	@RequestMapping( method = RequestMethod.GET)
+	public ResponseEntity<?> allProductos() {
 
-		if (service.allPedido(nombreparcial).size() != 0) {
-			return new ResponseEntity<>(service.allPedido(nombreparcial), HttpStatus.FOUND);
+		if (service.allPedido().size() != 0) {
+			return new ResponseEntity<>(service.allPedido(), HttpStatus.OK);
 		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		}
+	}
+	
+	@RequestMapping(value = "busqueda/{nombreparcial}", method = RequestMethod.GET)
+	public ResponseEntity<?> allProductosBusqueda(@PathVariable String nombreparcial) {
+
+		if (service.allPedidoBusqueda(nombreparcial).size() != 0) {
+			return new ResponseEntity<>(service.allPedidoBusqueda(nombreparcial), HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 	}
 
@@ -38,13 +50,13 @@ public class PedidoController {
 			int pk = Integer.parseInt(id);
 			try {
 				PedidoDTO pedido = service.findPedidoId(pk);
-				return new ResponseEntity<>(pedido, HttpStatus.FOUND);
+				return new ResponseEntity<>(pedido, HttpStatus.OK);
 			} catch (Exception e) {
 
 			}
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 	}
 
@@ -55,28 +67,28 @@ public class PedidoController {
 			int pk = Integer.parseInt(id);
 			try {
 				service.deletePedidoId(pk);
-				return new ResponseEntity<>(HttpStatus.ACCEPTED);
+				return new ResponseEntity<>(HttpStatus.OK);
 			} catch (Exception e) {
 
 			}
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<?> createPedido(@RequestBody PedidoCreateDTO pedidoDTO) {
-
-		Pedido pedido = service.createPedido(pedidoDTO);
+	public ResponseEntity<?> createPedido(@RequestBody PedidoCreateDTO pedidoDto) {
+		System.out.println("ENTRO");
+		Pedido pedido = service.createPedido(pedidoDto);
 		if (pedido.getId() != 0) {
-			return new ResponseEntity<>(HttpStatus.CONFLICT);
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		} else {
 			try {
 				service.savePedido(pedido);
-				return new ResponseEntity<>(HttpStatus.CREATED);
+				return new ResponseEntity<>(HttpStatus.OK);
 			} catch (Exception e) {
-				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 		}
 	}
@@ -89,13 +101,13 @@ public class PedidoController {
 			
 			try {
 				service.updatePedidoId(pedidoUpdate, pk);
-				return new ResponseEntity<>(HttpStatus.ACCEPTED);
+				return new ResponseEntity<>(HttpStatus.OK);
 			} catch (Exception e) {
-				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
 
 		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 
 	}

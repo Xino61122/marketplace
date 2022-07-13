@@ -70,5 +70,16 @@ public class UsuariosServiceImpl implements UsuarioService {
 		
 		 return repoUsuario.findByNombreEquals(nombre);		
 	}
+	
+	public void deleteUsuario(Usuario usuario) {
+		repoUsuario.delete(usuario);
+	}
 
+	public Usuario findUsuarioIdUser(int id) {
+		
+		
+		
+		return repoUsuario.findById(id).get();
+	}
+	
 }

@@ -17,7 +17,7 @@ public class ArticuloServiceImpl implements ArticuloService {
 	ArticuloRepository repoArticulo;
 
 	@Override
-	public List<ArticuloDTO> allArticulos(String nombre) {
+	public List<ArticuloDTO> allArticulosBusqueda(String nombre) {
 
 		List<Articulo> articulos= new ArrayList<>();
 		for (Articulo articulofind : repoArticulo.findArticuloByNombreContainingOrderById(nombre)) {			
@@ -32,6 +32,22 @@ public class ArticuloServiceImpl implements ArticuloService {
 		return articulosDTO;
 	}
 
+	@Override
+	public List<ArticuloDTO> allArticulos() {
+
+		List<Articulo> articulos= new ArrayList<>();
+		for (Articulo articulofind : repoArticulo.findAll()) {			
+			articulos.add(articulofind);
+		}
+		
+		List<ArticuloDTO> articulosDTO= new ArrayList<>();
+		for (Articulo articulofind:articulos) {
+			articulosDTO.add(convertArticuloArticuloDTO(articulofind));
+		}
+
+		return articulosDTO;
+	}
+	
 	@Override
 	public Articulo findArticuloId(int id) {
 
@@ -70,6 +86,10 @@ public class ArticuloServiceImpl implements ArticuloService {
 		articuloDTO.setPrecio(articulo.getPrecio());
 		articuloDTO.setStock(articulo.getStock());
 		return articuloDTO;
+	}
+	
+	public void deleteArticulo(Articulo articulo) {
+		repoArticulo.delete(articulo);
 	}
 
 }

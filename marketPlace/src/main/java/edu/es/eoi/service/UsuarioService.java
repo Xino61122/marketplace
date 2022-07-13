@@ -20,4 +20,7 @@ public interface UsuarioService {
 
 	Usuario loginUsuario(String nombre);
 
+	void deleteUsuario(Usuario usuario);
+	
+	Usuario findUsuarioIdUser(int id);
 }

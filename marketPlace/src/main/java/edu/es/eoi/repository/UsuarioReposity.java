@@ -10,4 +10,5 @@ public interface UsuarioReposity extends JpaRepository<Usuario, Integer>{
 
 	Usuario findByNombreEquals(String nombre);
 	
+	
 }
